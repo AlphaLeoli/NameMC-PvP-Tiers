@@ -1,0 +1,204 @@
+// ==UserScript==
+// @name         NameMC PvP Tiers Display
+// @namespace    http://tampermonkey.net/
+// @version      1.0.0
+// @description  Display a person's pvp tier from mctiers.com on their namemc profile
+// @author       AlphaLeoli
+// @license      CC-BY-NC-SA
+// @match        *://namemc.com/profile/*
+// @icon         https://www.google.com/s2/favicons?sz=64&domain=namemc.com
+// @grant        none
+// ==/UserScript==
+
+(function() {
+    'use strict';
+
+    // Function to format the date
+    function formatDate(timestamp) {
+        const date = new Date(timestamp * 1000);
+        const options = {
+            year: 'numeric',
+            month: 'numeric',
+            day: 'numeric',
+            hour: 'numeric',
+            minute: 'numeric',
+            second: 'numeric',
+            hour12: true
+        };
+        return new Intl.DateTimeFormat('en-US', options).format(date);
+    }
+
+    // Function to calculate time difference in days or years
+    function calculateTimeDifference(timestamp) {
+        const now = new Date();
+        const date = new Date(timestamp * 1000);
+        const diffTime = Math.abs(now - date);
+        const diffDays = Math.ceil(diffTime / 86400000);
+        const diffYears = Math.abs(now.getFullYear() - date.getFullYear());
+
+        if (diffDays >= 365) {
+            return `~${diffYears}y`;
+        } else {
+            return `${diffDays}d`;
+        }
+    }
+
+    // Wait for the page to load
+    window.addEventListener('load', function() {
+        // Select the div to be replaced
+        var targetDiv = document.querySelector('div[style="max-width: 580px; min-height: 216px; margin: auto"]');
+
+        // Customize gamemode names and margins here
+        var gamemodes = {
+            uhc: {
+                label: 'UHC',
+                margin: '10px' // Customize margin here
+            },
+            pot: {
+                label: 'Pot',
+                margin: '5px' // Customize margin here
+            },
+            vanilla: {
+                label: 'Crystal',
+                margin: '15px' // Customize margin here
+            },
+            neth_pot: {
+                label: 'NethPot',
+                margin: '8px' // Customize margin here
+            },
+            sword: {
+                label: 'Sword',
+                margin: '8px'
+            },
+            smp: {
+                label: 'SMP',
+                margin: '8px'
+            },
+            axe: {
+                label: 'Axe',
+                margin: '8px'
+            }
+            // Add more gamemodes as needed
+        };
+
+        // Get the UUID from the select element
+        var uuidSelect = document.getElementById('uuid-select');
+        if (uuidSelect) {
+            var selectedOption = uuidSelect.options[uuidSelect.selectedIndex];
+            var uuidText = selectedOption.textContent.trim(); // Get the displayed text of the selected option
+            var uuid = uuidText.replace(/-/g, '');
+            console.log(`Fetched UUID: ${uuid}`);
+
+            // Fetch the PvP tier data
+            fetch(`https://mctiers.com/api/profile/${uuid}`)
+                .then(response => {
+                    if (!response.ok) {
+                        console.error(`Error: ${response.status} ${response.statusText}`);
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('API Data:', data);
+                    if (targetDiv) {
+                        // Create the new div
+                        var newDiv = document.createElement('div');
+                        newDiv.className = 'card mb-3';
+                        newDiv.innerHTML = `
+                            <div class="card-header py-1">
+                              <strong>PvP Tiers</strong>
+                            </div>
+                            <div class="card-body px-0 py-1" style="max-height: 134px; overflow: auto">
+                              <table class="table table-borderless mb-0">
+                                <tbody>
+                                </tbody>
+                              </table>
+                            </div>
+                        `;
+
+                        var tbody = newDiv.querySelector('tbody');
+
+                        // Check if there are any rankings
+                        if (data.rankings && Object.keys(data.rankings).length > 0) {
+                            // Add rows for each ranking
+                            for (const [key, value] of Object.entries(data.rankings)) {
+                                var gamemode = gamemodes[key] ? gamemodes[key].label : key;
+
+                                var tier = value.tier;
+                                var pos = value.pos;
+                                var ranking = `T${tier}`;
+                                if (pos === 0) {
+                                    ranking = `H${ranking}`;
+                                } else {
+                                    ranking = `L${ranking}`;
+                                }
+                                if (value.retired) {
+                                    ranking = `R${ranking}`;
+                                }
+                                var attainedDate = formatDate(value.attained);
+                                var timeSince = calculateTimeDifference(value.attained);
+                                var namemcDate = attainedDate.replace(/,/g, ' •');
+
+                                var row = `
+                                    <tr>
+                                        <td width="1" class="text-start fw-bold" style="margin: ${gamemodes[key] ? gamemodes[key].margin : '0'}">${gamemode}</td>
+                                        <td width="100%" class="text-nowrap">${ranking}</td>
+                                        <td width="20%" class="d-none d-lg-table-cell text-end text-nowrap pe-0"><time>${namemcDate}</time></td>
+                                        <td class="d-none d-lg-table-cell" colspan="2"></td>
+                                        <td width="20%" class="d-none d-lg-table-cell text-end text-nowrap pe-0"><time>${timeSince}</time></td>
+                                        <td class="text-end text-nowrap px-0"></td>
+                                        <td class="text-end text-nowrap ps-0">
+                                          <a class="copy-button px-1" href="javascript:void(0)" data-clipboard-text="${ranking}" onclick="return false">Copy</a>
+                                        </td>
+                                    </tr>
+                                    <tr class="d-lg-none border-bottom">
+                                        <td colspan="3">
+                                          <time>${attainedDate} • ${ranking}</time>
+                                        </td>
+                                    </tr>
+                                `;
+
+                                tbody.innerHTML += row;
+                            }
+                        } else {
+                            // Default to "Unranked" if no rankings found
+                            tbody.innerHTML = `
+                                <tr>
+                                    <td class="text-start fw-bold">Unranked</td>
+                                </tr>
+                            `;
+                        }
+
+                        // Replace the old div with the new div
+                        targetDiv.parentNode.replaceChild(newDiv, targetDiv);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching PvP tier data:', error);
+                    // If error occurs, replace with "Unranked"
+                    if (targetDiv) {
+                        var newDiv = document.createElement('div');
+                        newDiv.className = 'card mb-3';
+                        newDiv.innerHTML = `
+                            <div class="card-header py-1">
+                              <strong>PvP Tiers</strong>
+                            </div>
+                            <div class="card-body px-0 py-1" style="max-height: 134px; overflow: auto">
+                              <table class="table table-borderless mb-0">
+                                <tbody>
+                                    <tr>
+                                        <td class="text-start fw-bold">Unranked</td>
+                                    </tr>
+                                </tbody>
+                              </table>
+                            </div>
+                        `;
+
+                        targetDiv.parentNode.replaceChild(newDiv, targetDiv);
+                    }
+                });
+        } else {
+            console.error('UUID select element not found');
+        }
+    });
+})();
