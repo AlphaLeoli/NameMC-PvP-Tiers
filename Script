@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         NameMC PvP Tiers Display
 // @namespace    https://github.com/AlphaLeoli/NameMC-PvP-Tiers
-// @version      2.0.2
+// @version      2.0.3
 // @description  Display a person's pvp tier from mctiers.com on their namemc profile
 // @author       AlphaLeoli
 // @license      CC-BY-NC-SA
@@ -9,7 +9,7 @@
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=namemc.com
 // @grant        none
 // ==/UserScript==
- 
+
 (function() {
     'use strict';
     const settings = {
@@ -19,7 +19,7 @@
         peakSuffix: `)`, // The text afterr the peak tier
         showDuplicates: false, // Whether or not to show the peak tier if the peak tier is the same as the current tier
         showRetiredDuplicates: false, // NOT YET IMPLEMENTED but it will be whether or not to show the peak tier if the peak tier is the same as the current tier without the "retired" in front of it
- 
+
         // Tier Names
         showIcons: true, // Show the tier icons next to the tier name
         sword: `Sword`,
@@ -29,15 +29,15 @@
         vanilla: `Crystal`,
         smp: `SMP`,
         pot: `Pot`,
- 
+
         // Other Settings
         showBadges: true, // Show badges next to someones name
- 
+
         // Tier Lists
         mctiers: true // show the mctiers.com tierlist ranks. changing this won't do anything yet.
         //not yet added any other tierlists. dm @alphaleoli on discord to make a suggestion.
     }
- 
+
     // Function to format the date
     function formatDate(timestamp) {
         const date = new Date(timestamp * 1000);
@@ -52,7 +52,7 @@
         };
         return new Intl.DateTimeFormat('en-US', options).format(date);
     }
- 
+
     // Function to calculate time difference in days or years
     function calculateTimeDifference(timestamp) {
         const now = new Date();
@@ -60,19 +60,19 @@
         const diffTime = Math.abs(now - date);
         const diffDays = Math.ceil(diffTime / 86400000);
         const diffYears = Math.abs(now.getFullYear() - date.getFullYear());
- 
+
         if (diffDays >= 365) {
             return `~${diffYears}y`;
         } else {
             return `${diffDays}d`;
         }
     }
- 
+
     // Wait for the page to load
     window.addEventListener('load', function() {
         // Select the div to be replaced
         var targetDiv = document.querySelector('div[style="max-width: 580px; min-height: 216px; margin: auto"]');
- 
+
         var gamemodes = {
             uhc: {
                 label: settings.uhc
@@ -96,7 +96,7 @@
                 label: settings.axe
             }
         };
- 
+
         // Get the UUID from the select element
         var uuidSelect = document.getElementById('uuid-select');
         if (uuidSelect) {
@@ -104,7 +104,7 @@
             var uuidText = selectedOption.textContent.trim(); // Get the displayed text of the selected option
             var uuid = uuidText.replace(/-/g, '');
             console.log(`Fetched UUID: ${uuid}`);
- 
+
             // Fetch the PvP tier data
             fetch(`https://mctiers.com/api/profile/${uuid}`)
                 .then(response => {
@@ -131,7 +131,7 @@
                               </table>
                             </div>
                         `;
- 
+
                         var nameHeader = document.querySelector('div.col-auto h1.text-nowrap');
                         if (nameHeader && settings.showBadges) {
                             var holdingTheCrown;
@@ -147,15 +147,15 @@
                                 }
                             }
                         }
- 
+
                         var tbody = newDiv.querySelector('tbody');
- 
+
                         // Check if there are any rankings
                         if (data.rankings && Object.keys(data.rankings).length > 0) {
                             // Add rows for each ranking
                             for (const [key, value] of Object.entries(data.rankings)) {
                                 var gamemode = gamemodes[key] ? gamemodes[key].label : key;
- 
+
                                 var tier = value.tier;
                                 var pos = value.pos;
                                 var peakTier = value.peak_tier;
@@ -189,7 +189,7 @@
                                 if (settings.mctiers) {
                                     var mctiersList = ``;
                                 }
- 
+
                                 var icon;
                                 if (settings.showIcons) {
                                     switch (key) {
@@ -221,7 +221,7 @@
                                 icon = `<img src = ${icon} height="16px" width="16px" style="vertical-align: middle;">`;
                                 var row = `
                                     <tr>
-                                        <td width="30%" class="text-start fw-bold">
+                                        <td width="35%" class="text-start fw-bold">
                                             ${icon}
                                             ${gamemode}
                                         </td>
@@ -240,7 +240,7 @@
                                         </td>
                                     </tr>
                                 `;
- 
+
                                 tbody.innerHTML += row;
                             }
                         } else {
@@ -251,7 +251,7 @@
                                 </tr>
                             `;
                         }
- 
+
                         // Replace the old div with the new div
                         targetDiv.parentNode.replaceChild(newDiv, targetDiv);
                     }
@@ -276,7 +276,7 @@
                               </table>
                             </div>
                         `;
- 
+
                         targetDiv.parentNode.replaceChild(newDiv, targetDiv);
                     }
                 });
