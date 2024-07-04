@@ -3,7 +3,8 @@
 ### Description:
 This script shows you the pvp tiers of a user on namemc. It gets the information from [mctiers.com](mctiers.com)'s api thingy. Also, I suppose I should probably show you how it looks so u wanna install it more.
 
-![image](https://github.com/AlphaLeoli/NameMC-PvP-Tiers/assets/111104533/78d77379-0959-45f3-8af7-9df14b186a3c)
+![image](https://github.com/AlphaLeoli/NameMC-PvP-Tiers/assets/111104533/7fa0155c-782a-4c7f-ab41-1937f473d689)
+
 
 ### Planned Features
 - join [my discord server](https://discord.gg/hZNyQE3nJy) to make suggestions
