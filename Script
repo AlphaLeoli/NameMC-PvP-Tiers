@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         NameMC PvP Tiers Display
 // @namespace    https://github.com/AlphaLeoli/NameMC-PvP-Tiers
-// @version      2.0.4
+// @version      2.0.5
 // @description  Display a person's pvp tier from mctiers.com on their namemc profile
 // @author       AlphaLeoli
 // @license      CC-BY-NC-SA
@@ -32,11 +32,37 @@
 
         // Other Settings
         showBadges: true, // Show badges next to someones name
+        showRating: true, // Show player's overall rating next to their name
+        ratingIcon: true, // Display the mctiers.com icon (and show the rating when you hover over it)
 
         // Tier Lists
         mctiers: true // show the mctiers.com tierlist ranks. changing this won't do anything yet.
         //not yet added any other tierlists. dm @alphaleoli on discord to make a suggestion.
     }
+
+    var style = document.createElement('style');
+    style.type = 'text/css';
+
+    style.innerHTML = `
+        #gamemode {
+            display: flex;
+            align-items: center;
+            position: relative;
+        }
+        .col-auto h1.text-nowrap {
+            display: flex;
+            align-items: center;
+            position: relative;
+        }
+        #gamemode img {
+            margin-right: 5px;
+        }
+        .col-auto h1.text-nowrap img {
+            margin-left: 10px;
+        }
+    `;
+
+    document.head.appendChild(style);
 
     // Function to format the date
     function formatDate(timestamp) {
@@ -131,8 +157,14 @@
                               </table>
                             </div>
                         `;
-
                         var nameHeader = document.querySelector('div.col-auto h1.text-nowrap');
+                        if (settings.showRating) {
+                            if (settings.ratingIcon) {
+                                nameHeader.innerHTML += ` <img src = https://mctiers.com/assets/overall-ca77dd12.svg width="48px" height="48px" style="vertical-align: middle;" title="Ranked #${data.overall} Overall">`
+                            } else {
+                                nameHeader.innerHTML += ` <span>#${data.overall}</span>`;
+                            }
+                        }
                         if (nameHeader && settings.showBadges) {
                             var holdingTheCrown;
                             for (const [key, value] of Object.entries(data.badges)) {
@@ -221,7 +253,7 @@
                                 icon = `<img src = ${icon} height="16px" width="16px" style="vertical-align: middle;">`;
                                 var row = `
                                     <tr>
-                                        <td width="35%" class="text-start fw-bold">
+                                        <td width="35%" class="text-start fw-bold" id="gamemode">
                                             ${icon}
                                             ${gamemode}
                                         </td>
