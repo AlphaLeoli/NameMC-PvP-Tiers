@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         NameMC PvP Tiers Display
 // @namespace    https://github.com/AlphaLeoli/NameMC-PvP-Tiers
-// @version      2.0.3
+// @version      2.0.4
 // @description  Display a person's pvp tier from mctiers.com on their namemc profile
 // @author       AlphaLeoli
 // @license      CC-BY-NC-SA
@@ -124,7 +124,7 @@
                             <div class="card-header py-1">
                               <strong>PvP Tiers</strong>
                             </div>
-                            <div class="card-body px-0 py-1" style="max-height: 134px; overflow: auto">
+                            <div class="card-body px-0 py-1" style="max-height: 182px; overflow: auto">
                               <table class="table table-borderless mb-0">
                                 <tbody>
                                 </tbody>
