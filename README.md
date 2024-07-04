@@ -22,4 +22,7 @@ This is how it looks when the user HAS NO TIER
 ![image](https://github.com/AlphaLeoli/NameMC-PvP-Tiers/assets/111104533/40418915-9d9e-4f55-8e15-9535e2298909)
 
 ### Planned Features
-I think in the future I'll make it so that it shows your overall ranking next to your name. I'll also make it show badges that you have. Next to the actual tiers, I will make it show your ranking for that tier as well as your peak tier. And i guess you can make suggestions if you add me on discord or join [my discord server](https://discord.gg/hZNyQE3nJy)
+- join [my discord server](https://discord.gg/hZNyQE3nJy) to make suggestions
+- overall ranking next to name
+- show badges you have
+- show rankings for each tier
