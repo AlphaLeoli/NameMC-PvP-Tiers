@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         NameMC PvP Tiers Display
-// @namespace    http://tampermonkey.net/
-// @version      2.0.0
+// @namespace    https://github.com/AlphaLeoli/NameMC-PvP-Tiers
+// @version      2.1.0
 // @description  Display a person's pvp tier from mctiers.com on their namemc profile
 // @author       AlphaLeoli
 // @license      CC-BY-NC-SA
@@ -72,6 +72,24 @@
     window.addEventListener('load', function() {
         // Select the div to be replaced
         var targetDiv = document.querySelector('div[style="max-width: 580px; min-height: 216px; margin: auto"]');
+        // Create the new div
+        var newDiv = document.createElement('div');
+        newDiv.className = 'card mb-3';
+        newDiv.innerHTML = `
+                            <div class="card-header py-1">
+                              <strong>PvP Tiers</strong>
+                            </div>
+                            <div class="card-body px-0 py-1" style="max-height: 134px; overflow: auto">
+                              <table class="table table-borderless mb-0">
+                                <tbody>
+                                    <tr>
+                                        <td class="text-start fw-bold">Loading Tiers..</td>
+                                    </tr>
+                                </tbody>
+                              </table>
+                            </div>
+                        `;
+        targetDiv.parentNode.replaceChild(newDiv, targetDiv);
 
         var gamemodes = {
             uhc: {
@@ -117,21 +135,6 @@
                 .then(data => {
                     console.log('API Data:', data);
                     if (targetDiv) {
-                        // Create the new div
-                        var newDiv = document.createElement('div');
-                        newDiv.className = 'card mb-3';
-                        newDiv.innerHTML = `
-                            <div class="card-header py-1">
-                              <strong>PvP Tiers</strong>
-                            </div>
-                            <div class="card-body px-0 py-1" style="max-height: 134px; overflow: auto">
-                              <table class="table table-borderless mb-0">
-                                <tbody>
-                                </tbody>
-                              </table>
-                            </div>
-                        `;
-
                         var nameHeader = document.querySelector('div.col-auto h1.text-nowrap');
                         if (nameHeader && settings.showBadges) {
                             var holdingTheCrown;
@@ -152,6 +155,8 @@
 
                         // Check if there are any rankings
                         if (data.rankings && Object.keys(data.rankings).length > 0) {
+                            // Delete the loading thing
+                            tbody.innerHTML = ``;
                             // Add rows for each ranking
                             for (const [key, value] of Object.entries(data.rankings)) {
                                 var gamemode = gamemodes[key] ? gamemodes[key].label : key;
@@ -218,10 +223,10 @@
                                             icon = `https://mctiers.com/assets/restricted-c3913674.svg`;
                                     }
                                 }
-                                icon = `<img src = ${icon} height="16px" width=16px" style="vertical-align: middle;">`;
+                                icon = `<img src = ${icon} height="16px" width="16px" style="vertical-align: middle;">`;
                                 var row = `
                                     <tr>
-                                        <td width="100%" class="text-start fw-bold">
+                                        <td width="35%" class="text-start fw-bold">
                                             ${icon}
                                             ${gamemode}
                                         </td>
@@ -230,9 +235,9 @@
                                         <td class="d-none d-lg-table-cell" colspan="2"></td>
                                         <td width="20%" class="d-none d-lg-table-cell text-end text-nowrap pe-0"><time>${timeSince}</time></td>
                                         <td class="text-end text-nowrap px-0"></td>
-                                        <td class="text-end text-nowrap ps-0">
+                                        <!-- <td class="text-end text-nowrap ps-0">
                                           <a class="copy-button px-1" href="javascript:void(0)" data-clipboard-text="${ranking}" onclick="return false">Copy</a>
-                                        </td>
+                                        </td> -->
                                     </tr>
                                     <tr class="d-lg-none border-bottom">
                                         <td colspan="3">
@@ -245,6 +250,7 @@
                             }
                         } else {
                             // Default to "Unranked" if no rankings found
+                            tbody.innerHTML = ``; //first delete the loading thing
                             tbody.innerHTML = `
                                 <tr>
                                     <td class="text-start fw-bold">Unranked</td>
@@ -258,25 +264,16 @@
                 })
                 .catch(error => {
                     console.error('Error fetching PvP tier data:', error);
-                    // If error occurs, replace with "Unranked"
+                    // If error occurs then the guy is unranked
                     if (targetDiv) {
-                        var newDiv = document.createElement('div');
-                        newDiv.className = 'card mb-3';
-                        newDiv.innerHTML = `
-                            <div class="card-header py-1">
-                              <strong>PvP Tiers</strong>
-                            </div>
-                            <div class="card-body px-0 py-1" style="max-height: 134px; overflow: auto">
-                              <table class="table table-borderless mb-0">
-                                <tbody>
+                        // remove the loading thing first
+                        var tbody = newDiv.querySelector('tbody');
+                        tbody.innerHTML = ``;
+                        tbody.innerHTML = `
                                     <tr>
                                         <td class="text-start fw-bold">Unranked</td>
                                     </tr>
-                                </tbody>
-                              </table>
-                            </div>
                         `;
-
                         targetDiv.parentNode.replaceChild(newDiv, targetDiv);
                     }
                 });
