@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         NameMC PvP Tiers Display
 // @namespace    http://tampermonkey.net/
-// @version      1.1.0
+// @version      2.0.0
 // @description  Display a person's pvp tier from mctiers.com on their namemc profile
 // @author       AlphaLeoli
 // @license      CC-BY-NC-SA
@@ -19,6 +19,19 @@
         peakSuffix: `)`, // The text afterr the peak tier
         showDuplicates: false, // Whether or not to show the peak tier if the peak tier is the same as the current tier
         showRetiredDuplicates: false, // NOT YET IMPLEMENTED but it will be whether or not to show the peak tier if the peak tier is the same as the current tier without the "retired" in front of it
+
+        // Tier Names
+        showIcons: true, // Show the tier icons next to the tier name
+        sword: `Sword`,
+        axe: `Axe`,
+        uhc: `UHC`,
+        netherPot: `NethPot`,
+        vanilla: `Crystal`,
+        smp: `SMP`,
+        pot: `Pot`,
+
+        // Other Settings
+        showBadges: true, // Show badges next to someones name
 
         // Tier Lists
         mctiers: true // show the mctiers.com tierlist ranks. changing this won't do anything yet.
@@ -60,37 +73,28 @@
         // Select the div to be replaced
         var targetDiv = document.querySelector('div[style="max-width: 580px; min-height: 216px; margin: auto"]');
 
-        // Customize gamemode names and margins here
         var gamemodes = {
             uhc: {
-                label: 'UHC',
-                margin: '10px' // Customize margin here
+                label: settings.uhc
             },
             pot: {
-                label: 'Pot',
-                margin: '5px' // Customize margin here
+                label: settings.pot
             },
             vanilla: {
-                label: 'Crystal',
-                margin: '15px' // Customize margin here
+                label: settings.vanilla
             },
             neth_pot: {
-                label: 'NethPot',
-                margin: '8px' // Customize margin here
+                label: settings.netherPot
             },
             sword: {
-                label: 'Sword',
-                margin: '8px'
+                label: settings.sword
             },
             smp: {
-                label: 'SMP',
-                margin: '8px'
+                label: settings.smp
             },
             axe: {
-                label: 'Axe',
-                margin: '8px'
+                label: settings.axe
             }
-            // Add more gamemodes as needed
         };
 
         // Get the UUID from the select element
@@ -127,6 +131,22 @@
                               </table>
                             </div>
                         `;
+
+                        var nameHeader = document.querySelector('div.col-auto h1.text-nowrap');
+                        if (nameHeader && settings.showBadges) {
+                            var holdingTheCrown;
+                            for (const [key, value] of Object.entries(data.badges)) {
+                                switch (value.title) {
+                                    case `Adventurous`:
+                                        nameHeader.innerHTML += ` <img src = https://mctiers.com/assets/adventurous-81202832.svg width="48px" height="48px" style="vertical-align: middle;" title="${value.desc}">`;
+                                    case `Holding The Crown`:
+                                        if (!holdingTheCrown) {
+                                            nameHeader.innerHTML += ` <img src = https://mctiers.com/assets/holding_the_crown-cb7b5717.svg width="48px" height="48px" style="vertical-align: middle;" title="${value.desc}">`;
+                                            holdingTheCrown = true;
+                                        }
+                                }
+                            }
+                        }
 
                         var tbody = newDiv.querySelector('tbody');
 
@@ -170,9 +190,41 @@
                                     var mctiersList = ``;
                                 }
 
+                                var icon;
+                                if (settings.showIcons) {
+                                    switch (key) {
+                                        case `sword`:
+                                            icon = `https://mctiers.com/assets/sword-9023278f.svg`;
+                                            break;
+                                        case `uhc`:
+                                            icon = `https://mctiers.com/assets/uhc-05be850e.svg`;
+                                            break;
+                                        case `axe`:
+                                            icon = `https://mctiers.com/assets/axe-09fbd7d8.svg`;
+                                            break;
+                                        case `neth_pot`:
+                                            icon = `https://mctiers.com/assets/neth_pot-07e18fb6.svg`;
+                                            break;
+                                        case `pot`:
+                                            icon = `https://mctiers.com/assets/pot-5ade81ba.svg`;
+                                            break;
+                                        case `vanilla`:
+                                            icon = `https://mctiers.com/assets/vanilla-38455c89.svg`;
+                                            break;
+                                        case `smp`:
+                                            icon = `https://mctiers.com/assets/smp-72ce94df.svg`;
+                                            break;
+                                        default:
+                                            icon = `https://mctiers.com/assets/restricted-c3913674.svg`;
+                                    }
+                                }
+                                icon = `<img src = ${icon} height="16px" width=16px" style="vertical-align: middle;">`;
                                 var row = `
                                     <tr>
-                                        <td width="1" class="text-start fw-bold" style="margin: ${gamemodes[key] ? gamemodes[key].margin : '0'}">${gamemode}</td>
+                                        <td width="100%" class="text-start fw-bold">
+                                            ${icon}
+                                            ${gamemode}
+                                        </td>
                                         <td width="100%" class="text-nowrap">${ranking} ${peakRanking}</td>
                                         <td width="20%" class="d-none d-lg-table-cell text-end text-nowrap pe-0"><time>${namemcDate}</time></td>
                                         <td class="d-none d-lg-table-cell" colspan="2"></td>
