@@ -25,4 +25,5 @@ This is how it looks when the user HAS NO TIER
 - join [my discord server](https://discord.gg/hZNyQE3nJy) to make suggestions
 - overall ranking next to name
 - show badges you have
+    - partially implemented, but only two badges. i need them to make a better format for badges before i continue
 - show rankings for each tier
