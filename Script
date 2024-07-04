@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         NameMC PvP Tiers Display
 // @namespace    http://tampermonkey.net/
-// @version      1.0.0
+// @version      1.1.0
 // @description  Display a person's pvp tier from mctiers.com on their namemc profile
 // @author       AlphaLeoli
 // @license      CC-BY-NC-SA
@@ -12,6 +12,18 @@
 
 (function() {
     'use strict';
+    const settings = {
+        // Peak Settings
+        showPeak: true, // Shows the peak tier to the right of the tier
+        peakPrefix: `(peaked `, // The text before the peak tier
+        peakSuffix: `)`, // The text afterr the peak tier
+        showDuplicates: false, // Whether or not to show the peak tier if the peak tier is the same as the current tier
+        showRetiredDuplicates: false, // NOT YET IMPLEMENTED but it will be whether or not to show the peak tier if the peak tier is the same as the current tier without the "retired" in front of it
+
+        // Tier Lists
+        mctiers: true // show the mctiers.com tierlist ranks. changing this won't do anything yet.
+        //not yet added any other tierlists. dm @alphaleoli on discord to make a suggestion.
+    }
 
     // Function to format the date
     function formatDate(timestamp) {
@@ -126,7 +138,10 @@
 
                                 var tier = value.tier;
                                 var pos = value.pos;
+                                var peakTier = value.peak_tier;
+                                var peakPos = value.peak_pos;
                                 var ranking = `T${tier}`;
+                                var peakRanking = `T${peakTier}`;
                                 if (pos === 0) {
                                     ranking = `H${ranking}`;
                                 } else {
@@ -135,14 +150,30 @@
                                 if (value.retired) {
                                     ranking = `R${ranking}`;
                                 }
+                                if (peakPos === 0) {
+                                    peakRanking = `H${peakRanking}`;
+                                } else {
+                                    peakRanking = `L${peakRanking}`;
+                                }
+                                if (peakRanking === ranking && !settings.showDuplicates) {
+                                    peakRanking = ``;
+                                } else {
+                                    peakRanking = `${settings.peakPrefix}${peakRanking}${settings.peakSuffix}`;
+                                }
                                 var attainedDate = formatDate(value.attained);
                                 var timeSince = calculateTimeDifference(value.attained);
                                 var namemcDate = attainedDate.replace(/,/g, ' •');
+                                if (!settings.showPeak) {
+                                    peakRanking = ``;
+                                }
+                                if (settings.mctiers) {
+                                    var mctiersList = ``;
+                                }
 
                                 var row = `
                                     <tr>
                                         <td width="1" class="text-start fw-bold" style="margin: ${gamemodes[key] ? gamemodes[key].margin : '0'}">${gamemode}</td>
-                                        <td width="100%" class="text-nowrap">${ranking}</td>
+                                        <td width="100%" class="text-nowrap">${ranking} ${peakRanking}</td>
                                         <td width="20%" class="d-none d-lg-table-cell text-end text-nowrap pe-0"><time>${namemcDate}</time></td>
                                         <td class="d-none d-lg-table-cell" colspan="2"></td>
                                         <td width="20%" class="d-none d-lg-table-cell text-end text-nowrap pe-0"><time>${timeSince}</time></td>
@@ -153,7 +184,7 @@
                                     </tr>
                                     <tr class="d-lg-none border-bottom">
                                         <td colspan="3">
-                                          <time>${attainedDate} • ${ranking}</time>
+                                          <time>asdfasdf ${attainedDate} • ${ranking}</time>
                                         </td>
                                     </tr>
                                 `;
