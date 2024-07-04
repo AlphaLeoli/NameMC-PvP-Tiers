@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         NameMC PvP Tiers Display
 // @namespace    https://github.com/AlphaLeoli/NameMC-PvP-Tiers
-// @version      2.0.5
+// @version      2.1.0
 // @description  Display a person's pvp tier from mctiers.com on their namemc profile
 // @author       AlphaLeoli
 // @license      CC-BY-NC-SA
@@ -18,7 +18,6 @@
         peakPrefix: `(peaked `, // The text before the peak tier
         peakSuffix: `)`, // The text afterr the peak tier
         showDuplicates: false, // Whether or not to show the peak tier if the peak tier is the same as the current tier
-        showRetiredDuplicates: false, // NOT YET IMPLEMENTED but it will be whether or not to show the peak tier if the peak tier is the same as the current tier without the "retired" in front of it
 
         // Tier Names
         showIcons: true, // Show the tier icons next to the tier name
@@ -30,10 +29,11 @@
         smp: `SMP`,
         pot: `Pot`,
 
-        // Other Settings
+        // Badges
         showBadges: true, // Show badges next to someones name
         showRating: true, // Show player's overall rating next to their name
-        ratingIcon: true, // Display the mctiers.com icon (and show the rating when you hover over it)
+        ratingIcon: true, // Display the trophy icon (and show the rating when you hover over it)
+        retiredBadge: true, // Show the purple trophy (and show the retired gamemodes when you hover over it)
 
         // Tier Lists
         mctiers: true // show the mctiers.com tierlist ranks. changing this won't do anything yet.
@@ -158,6 +158,7 @@
                             </div>
                         `;
                         var nameHeader = document.querySelector('div.col-auto h1.text-nowrap');
+                        // Rating Badge
                         if (settings.showRating) {
                             if (settings.ratingIcon) {
                                 nameHeader.innerHTML += ` <img src = https://mctiers.com/assets/overall-ca77dd12.svg width="48px" height="48px" style="vertical-align: middle;" title="Ranked #${data.overall} Overall">`
@@ -165,6 +166,26 @@
                                 nameHeader.innerHTML += ` <span>#${data.overall}</span>`;
                             }
                         }
+                        // Retired Badge
+                        if (settings.retiredBadge) {
+                            // var retiredGamemodes = 0;
+                            var retiredList = `Retired in `;
+                            var retired = false;
+                            for (const [key, value] of Object.entries(data.rankings)) {
+                                if (value.retired) {
+                                    if (!retired) {
+                                        retiredList += `${gamemodes[key].label}`;
+                                        retired = true;
+                                    } else {
+                                        retiredList += `, ${gamemodes[key].label}`;
+                                    }
+                                }
+                            }
+                            if (retired) {
+                                nameHeader.innerHTML += ` <img src = https://mctiers.com/assets/retired-11f4ccb4.svg width="48px" height="48px" style="vertical-align: middle;" title="${retiredList}">`
+                            }
+                        }
+                        // Other Badges
                         if (nameHeader && settings.showBadges) {
                             var holdingTheCrown;
                             for (const [key, value] of Object.entries(data.badges)) {
@@ -181,7 +202,6 @@
                         }
 
                         var tbody = newDiv.querySelector('tbody');
-
                         // Check if there are any rankings
                         if (data.rankings && Object.keys(data.rankings).length > 0) {
                             // Add rows for each ranking
@@ -199,9 +219,6 @@
                                 } else {
                                     ranking = `L${ranking}`;
                                 }
-                                if (value.retired) {
-                                    ranking = `R${ranking}`;
-                                }
                                 if (peakPos === 0) {
                                     peakRanking = `H${peakRanking}`;
                                 } else {
@@ -211,6 +228,9 @@
                                     peakRanking = ``;
                                 } else {
                                     peakRanking = `${settings.peakPrefix}${peakRanking}${settings.peakSuffix}`;
+                                }
+                                if (value.retired) {
+                                    ranking = `R${ranking}`;
                                 }
                                 var attainedDate = formatDate(value.attained);
                                 var timeSince = calculateTimeDifference(value.attained);
