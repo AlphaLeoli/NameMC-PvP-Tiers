@@ -17,4 +17,5 @@ In order to install, you can either install [tampermonkey](https://www.tampermon
 
 ### Configuration:
 If you want to configure the script, then there are some convenient settings you can edit. Just open the script and they will be at the top.
+
 ![image](https://github.com/AlphaLeoli/NameMC-PvP-Tiers/assets/111104533/5bbd9c2e-6f5c-409d-a22e-8d16c78aee0e)
