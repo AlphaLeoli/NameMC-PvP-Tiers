@@ -13,6 +13,3 @@ This script shows you the pvp tiers of a user on namemc. It gets the information
 - show badges you have
     - partially implemented, but only two badges. i need them to make a better format for badges before i continue
 - show rankings for each tier
-
-### How to Install:
-In order to install, you can go get it for [tampermonkey](https://greasyfork.org/en/scripts/499332-namemc-pvp-tiers-display).
