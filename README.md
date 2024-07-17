@@ -9,7 +9,6 @@ This script shows you the pvp tiers of a user on namemc. It gets the information
 
 ### Planned Features
 - join [my discord server](https://discord.gg/hZNyQE3nJy) to make suggestions
-- overall ranking next to name
 - show badges you have
     - partially implemented, but only two badges. i need them to make a better format for badges before i continue
-- show rankings for each tier
+    - not currently working on this
